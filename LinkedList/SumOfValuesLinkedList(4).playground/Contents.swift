@@ -14,23 +14,22 @@ class ListNode {
 }
 
 func sumList(_ head: ListNode?) -> Int {
-    var sum = 0
-    
-    // Use a temporary pointer to traverse the list
+    var sum: Int = 0
     var current = head
-
-    // Loop until current is nil (we reach the end of the list)
+    
+    var i = 0
     while current != nil {
-        sum += current!.value          // Add current node’s value
-        current = current!.next      // Move to the next node
+        i += 1
+        print("iteration \(i)")
+        sum += current?.value ?? 0
+        current = current?.next
     }
-
+    
     return sum
 }
-
-let node1 = ListNode(value: 1, next: node2)
-let node2 = ListNode(value: 1, next: node3)
 let node3 = ListNode(value: 1)
+let node2 = ListNode(value: 1, next: node3)
+let node1 = ListNode(value: 1, next: node2)
 
 let total = sumList(node1)
 print(total)
