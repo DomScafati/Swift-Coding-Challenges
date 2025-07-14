@@ -7,12 +7,26 @@ import UIKit
  */
 
 func characterFrequency(_ string: String) -> [Character: Int] {
-    var dict: [Character: Int] = [:]
-    var newString = string.lowercased().filter { $0.isLetter }
+    var dict = [Character: Int]()
     
-    for char in newString {
+    for char in string {
         dict[char, default: 0] += 1
     }
     
     return dict
+}
+
+func reverseString(string: String) -> String {
+    var newString = ""
+    var index = string.index(before: string.endIndex)
+    
+    while true {
+        newString.append(string[index])
+        if index == string.startIndex {
+            break
+        }
+        index = string.index(before: index)
+    }
+    
+    return newString
 }
