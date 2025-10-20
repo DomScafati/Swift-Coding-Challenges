@@ -2,21 +2,26 @@ import UIKit
 
 /*
  You’re given an array containing n distinct numbers in the range 0...n. Return the one number that is missing from the array.
+ use a two-pointer algorithm for this.
  */
 
 func findMissingNumber(_ array: [Int]) -> Int? {
-    var previous: Int?
+    var left = 0
+    var right = array.count - 1
+    let start = array[0]
     
-    for num in array {
+    while left <= right {
+        let mid = left + (right - left)/2
+        let expected = start + mid
         
-        if let prevNum = previous,
-           prevNum + 1 != num {
-            return prevNum + 1
+        if array[mid] == expected {
+            left = mid + 1
+        } else {
+            right = mid - 1
         }
-        previous = num
     }
     
-    return nil
+    return start + left
 }
 
 func findMissingNumberWithSet(_ array: [Int]) -> Int {
@@ -28,4 +33,4 @@ func findMissingNumberWithSet(_ array: [Int]) -> Int {
 
 var array1 = [0, 1,2,3,4,6] // 5
 var array2 = [0, 1, 3, 4] // 2
-print(findMissingNumber(array1))
+print(findMissingNumber(array2))

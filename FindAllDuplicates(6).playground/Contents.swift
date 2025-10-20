@@ -7,8 +7,6 @@ import UIKit
 var greeting = "Hello, playground"
 
 func returnDuplicates(array: [Int]) -> [Int] {
-    let highestValue = array.count
-    let lowestValue = 1
     var dictionary = [Int:Int]() // the integer and the count of the integer
     var duplicates = [Int]()
     guard !array.isEmpty else {
