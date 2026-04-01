@@ -24,31 +24,43 @@ Given an n x n 2D matrix of integers, rotate the matrix in-place by 90 degrees c
 var matrix1 = [
     [1, 2, 3], [4, 5, 6], [7, 8, 9]
 ]
-
-func rotateMatrix(_ matrix: [[Int]]) -> [[Int]] {
-    var newMatrix = [[Int]]()
-
-    // find the edges
-    var leftIndex = 0
-    var rightIndex = matrix.first!.count - 1
-    var topIndex = 0
-    var bottomIndex = matrix.count - 1
+func rotateMatrix(_ matrix: inout [[Int]]) {
+    let n = matrix.count
+    guard n > 1 else { return } // nothing to rotate if 1x1
     
-    var totalElements =  matrix.first!.count * matrix.count
+    // We’ll rotate one "layer" (or ring) at a time
+    var top = 0
+    var bottom = n - 1
+    var left = 0
+    var right = n - 1
     
-    while newMatrix.count < totalElements {
+    // Each iteration handles one outer layer, moving inward
+    while left < right && top < bottom {
+        // The number of elements to rotate per side (one less than layer width)
+        let offsetCount = right - left
         
-        for collumn in stride(from: leftIndex, through: rightIndex, by: 1) {
-            newMatrix.app
+        // Loop through each element in this ring (except the last one, which closes the loop)
+        for i in 0..<offsetCount {
+            // Save the top-left value (it will get overwritten first)
+            let topLeft = matrix[top][left + i]
+            
+            // Move bottom-left → top-left
+            matrix[top][left + i] = matrix[bottom - i][left]
+            
+            // Move bottom-right → bottom-left
+            matrix[bottom - i][left] = matrix[bottom][right - i]
+            
+            // Move top-right → bottom-right
+            matrix[bottom][right - i] = matrix[top + i][right]
+            
+            // Move saved top-left → top-right
+            matrix[top + i][right] = topLeft
         }
-        tmp1 += 1
-        leftIndex += 1
-        rightIndex -= 1
-        topIndex += 1
-        bottomIndex += 1
+        
+        // Move inward to the next layer
+        top += 1
+        bottom -= 1
+        left += 1
+        right -= 1
     }
-    
-    return newMatrix
 }
-
-var tmp = rotateMatrix(matrix1)
