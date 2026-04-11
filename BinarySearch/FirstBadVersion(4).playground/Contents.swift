@@ -1,18 +1,11 @@
 import UIKit
 
 /*
- 
  There is a version history from 1 to n. You are guaranteed that:
-
  All versions before a certain version are good
-
  All versions from that version on are bad
-
  📌 Your job is to find the first bad version, using the minimum number of calls to isBadVersion.
-
-
  */
-
 
 // 1. Simulate the hidden first bad version
 let firstBroken = 4
