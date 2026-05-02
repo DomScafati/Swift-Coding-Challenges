@@ -54,16 +54,44 @@ let jsonData = Data("""
 
 // MARK: Your solution (Challenge 1)
 
+struct Address: Codable {
+    let street: String
+    let city: String
+    let postalCode: String
+    
+    enum CodingKeys: String, CodingKey {
+        case street
+        case city
+        case postalCode = "postal_code"
+    }
+}
 
+struct UserProfile: Codable {
+    let userId: Int
+    let fullName: String
+    let email: String
+    let isPremium: Bool
+    let address: Address
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case fullName = "full_name"
+        case isPremium = "is_premium"
+        case email
+        case address
+    }
+}
+
+let profile = try! JSONDecoder().decode(UserProfile.self, from: jsonData)
 
 // MARK: Tests (Challenge 1) — uncomment as you go
 
-// assert(profile.userId == 7)
-// assert(profile.fullName == "Maya Chen")
-// assert(profile.isPremium == true)
-// assert(profile.address.city == "Toronto")
-// assert(profile.address.postalCode == "M5V 2T6")
-// print("Challenge 1 passed!")
+ assert(profile.userId == 7)
+ assert(profile.fullName == "Maya Chen")
+ assert(profile.isPremium == true)
+ assert(profile.address.city == "Toronto")
+ assert(profile.address.postalCode == "M5V 2T6")
+ print("Challenge 1 passed!")
 
 
 // ============================================================
@@ -106,24 +134,42 @@ func fetchPlayerScore(id: Int) async -> Int {
 
 // MARK: Your solution (Challenge 2)
 
-
+func loadPlayerSummary(id: Int) async -> PlayerSummary {
+    async let name = fetchPlayerName(id: id)
+    async let score = fetchPlayerScore(id: id)
+    let (n, s) = await (name, score)
+    
+    var rank = ""
+    
+    switch s {
+    case 90..<100: rank = "Gold"
+    case 70...89: rank = "Silver"
+    default: rank = "Bronze"
+    }
+    
+    return PlayerSummary(
+        name: n,
+        score: s,
+        rank: rank
+    )
+}
 
 // MARK: Tests (Challenge 2) — uncomment as you go
 
-// Task {
-//     let s1 = await loadPlayerSummary(id: 1)
-//     assert(s1.name == "Aria")
-//     assert(s1.score == 94)
-//     assert(s1.rank == "Gold")
-//
-//     let s2 = await loadPlayerSummary(id: 2)
-//     assert(s2.rank == "Silver")
-//
-//     let s3 = await loadPlayerSummary(id: 3)
-//     assert(s3.rank == "Bronze")
-//
-//     print("Challenge 2 passed!")
-// }
+ Task {
+     let s1 = await loadPlayerSummary(id: 1)
+     assert(s1.name == "Aria")
+     assert(s1.score == 94)
+     assert(s1.rank == "Gold")
+
+     let s2 = await loadPlayerSummary(id: 2)
+     assert(s2.rank == "Silver")
+
+     let s3 = await loadPlayerSummary(id: 3)
+     assert(s3.rank == "Bronze")
+
+     print("Challenge 2 passed!")
+ }
 
 
 // ============================================================
@@ -174,29 +220,56 @@ let orders: [Order] = [
 
 // MARK: Your solution (Challenge 3)
 
+func findOrder(id: Int) -> Result<Order, AppError> {
+    for order in orders {
+        if order.id == id {
+            return .success(order)
+        }
+    }
+    return .failure(.notFound)
+}
 
+func applyDiscount(_ order: Order) -> Result<Order, AppError> {
+    var newOrder = Order(
+        id: order.id,
+        total: order.total * 0.9
+    )
+    
+    if order.total <= 0 {
+        return .failure(.invalidOrder)
+    }
+    
+    return .success(newOrder)
+}
+
+func processOrder(id: Int) -> Result<Order, AppError> {
+    let result = findOrder(id: id).flatMap { order in
+        return applyDiscount(order)
+    }
+    return result
+}
 
 // MARK: Tests (Challenge 3) — uncomment as you go
 
-// let result1 = processOrder(id: 1)
-// if case .success(let order) = result1 {
-//     assert(abs(order.total - 44.991) < 0.01)  // 49.99 * 0.9
-// } else {
-//     assert(false, "Expected success for order 1")
-// }
-//
-// let result2 = processOrder(id: 99)
-// if case .failure(let error) = result2 {
-//     assert(error == .notFound)
-// } else {
-//     assert(false, "Expected .notFound for missing order")
-// }
-//
-// let result3 = processOrder(id: 3)
-// if case .failure(let error) = result3 {
-//     assert(error == .invalidOrder)
-// } else {
-//     assert(false, "Expected .invalidOrder for zero total")
-// }
-//
-// print("Challenge 3 passed!")
+ let result1 = processOrder(id: 1)
+ if case .success(let order) = result1 {
+     assert(abs(order.total - 44.991) < 0.01)  // 49.99 * 0.9
+ } else {
+     assert(false, "Expected success for order 1")
+ }
+
+ let result2 = processOrder(id: 99)
+ if case .failure(let error) = result2 {
+     assert(error == .notFound)
+ } else {
+     assert(false, "Expected .notFound for missing order")
+ }
+
+ let result3 = processOrder(id: 3)
+ if case .failure(let error) = result3 {
+     assert(error == .invalidOrder)
+ } else {
+     assert(false, "Expected .invalidOrder for zero total")
+ }
+
+ print("Challenge 3 passed!")

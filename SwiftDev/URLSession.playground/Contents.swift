@@ -1,8 +1,6 @@
 import UIKit
 import Combine
 
-var greeting = "Hello, playground"
-
 enum CustomError: Error {
     case urlError
     case urlSessionError
@@ -12,58 +10,76 @@ enum CustomError: Error {
     case unknownError
 }
 
-func fetchAsync<T: Decodable>(urlString: String) async -> T? {
-    do {
-        
-        guard let url = URL(string: urlString) else {
-            throw CustomError.urlError
-        }
-        
-        guard let (data, response) = try? await URLSession.shared.data(from: url) else {
-            throw CustomError.urlSessionError
-        }
-        
-        guard let httpURLResponse = response as? HTTPURLResponse,
-              (200..<300).contains(httpURLResponse.statusCode) else {
-            throw CustomError.responseError
-        }
-        
-        guard let result = try? JSONDecoder().decode(T.self, from: data) else {
-            throw CustomError.decodingError
-        }
-        
-        return result
-        
-    } catch {
-        debugPrint("💥ERROR:\n\(error)")
+// use Async/await
+// throw errors
+// return generic
+func modernFetch<T: Decodable>(_ url: String) async throws -> T {
+    guard let url = URL(string: url) else { throw CustomError.urlError }
+    
+    let (data, response) = try await URLSession.shared.data(from: url)
+    
+    guard let httpURLResponse = response as? HTTPURLResponse,
+          (200...299).contains(httpURLResponse.statusCode) else {
+        throw CustomError.responseError
     }
     
-    return nil
-}
-
-func fetchClassic<T: Decodable>(urlString: String, completion: @escaping (Result<T, CustomError>) -> Void) {
-        guard let url = URL(string: urlString) else {
-            return completion(.failure(CustomError.urlError))
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data,
-                  let httpURLResponse = response as? HTTPURLResponse,
-                  (200..<300).contains(httpURLResponse.statusCode),
-                  error == nil else {
-                return completion(.failure(CustomError.urlSessionError))
-            }
-            
-            guard let result = try? JSONDecoder().decode(T.self, from: data) else {
-                return completion(.failure(CustomError.decodingError))
-            }
-            
-            return completion(.success(result))
-        }
-        
-    return completion(.failure(CustomError.unknownError))
-}
-
-func fetchCombine<T: Decodable>(urlString: String) -> AnyPublisher<T, Error> {
+    guard let result = try? JSONDecoder().decode(T.self, from: data) else {
+        throw CustomError.decodingError
+    }
     
+    return result
+}
+
+// use urlsession
+// handle errors
+// return Result
+var callback: ((Result<String, CustomError>) -> Void)?
+
+func callBackFetch(_ url: String, completion: @escaping (Result<String, CustomError>) -> Void) {
+
+    guard let url = URL(string: url) else {
+        completion(.failure(.urlError))
+        return
+    }
+
+    URLSession.shared.dataTask(with: url) { data, response, _ in
+        guard let myData = data,
+              let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            completion(.failure(.urlSessionError))
+            return
+        }
+
+        guard let finishedResult = String(data: myData, encoding: .utf8) else {
+            completion(.failure(.unknownError))
+            return
+        }
+
+        completion(.success(finishedResult))
+    }
+    .resume()
+}
+
+func combinFetch<T: Decodable>(_ urlString: String)-> AnyPublisher<T, CustomError> {
+    guard let url = URL(string: urlString) else {
+        return Fail(error: .urlError).eraseToAnyPublisher()
+    }
+    
+    return URLSession.shared.dataTaskPublisher(for: url)
+        .tryMap({ data, response in
+            guard let httpUrlResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpUrlResponse.statusCode) else {
+                throw CustomError.responseError
+            }
+            return data
+        })
+        .decode(type: T.self, decoder: JSONDecoder())
+        .mapError({ error in
+            switch error {
+            case is URLError: return CustomError.urlError
+            case is DecodingError: return CustomError.decodingError
+            default: return CustomError.unknownError
+            }
+        })
+        .eraseToAnyPublisher()
 }
