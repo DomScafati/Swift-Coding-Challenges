@@ -1,0 +1,16 @@
+SwiftDev Topics To Cover (not yet in proper challenge format)
+==============================================================
+
+Concurrency
+- Race conditions — what they are, how to reproduce, how actors prevent them
+- Combine framework — Publishers, Subscribers, operators (.map, .filter, .sink)
+
+Networking
+- URLSession — real async data tasks, URL construction, response handling
+
+Language / Fundamentals
+- Date formatting — DateFormatter, ISO8601, formatting styles
+- String manipulation — subscripts, ranges, components, regex basics
+- Caching patterns — NSCache, manual dictionary cache, cache invalidation
+- Result builders — @resultBuilder, how SwiftUI DSL syntax works under the hood
+- Operator overloading — custom +, ==, < on your own types
