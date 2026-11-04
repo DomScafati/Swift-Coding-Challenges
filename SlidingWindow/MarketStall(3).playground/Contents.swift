@@ -64,9 +64,9 @@ func bestWindow(_ sales: [Int], days k: Int) -> Int {
 // MARK: Tests (Challenge 1) — uncomment as you go
 
  assert(bestWindow(stallA, days: 3) == 175)
-// assert(bestWindow(stallB, days: 2) == 50)
-// assert(bestWindow(stallC, days: 1) == 200)
-// print("Challenge 1 passed!")
+ assert(bestWindow(stallB, days: 2) == 50)
+ assert(bestWindow(stallC, days: 1) == 200)
+ print("Challenge 1 passed!")
 
 
 // ============================================================

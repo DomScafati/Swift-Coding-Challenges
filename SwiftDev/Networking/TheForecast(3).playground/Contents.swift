@@ -68,19 +68,19 @@ struct WeatherService {
 // MARK: Your solution (Challenge 1)
 
 extension WeatherReport {
-    enum CodingKeys: String, CodingKey {
-        case locationName = "location_name"
-        case tempCelsius = "temp_celsius"
-        case humidityPct = "humidity_pct"
-        case condition = "condition"
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.locationName = try container.decode(String.self, forKey: .locationName)
+        self.tempCelsius = try container.decode(Double.self, forKey: .tempCelcius)
+        self.humidityPct = try container.decode(Int.self, forKey: .humidityPct)
+        self.condition = try container.decode(String.self, forKey: .condition)
     }
     
-    init(from decoder: any Decoder) throws {
-        var box = try decoder.container(keyedBy: CodingKeys.self)
-        self.locationName = try box.decode(String.self, forKey: .locationName)
-        self.tempCelsius = try box.decode(Double.self, forKey: .tempCelsius)
-        self.humidityPct = try box.decode(Int.self, forKey: .humidityPct)
-        self.condition = try box.decode(String.self, forKey: .condition)
+    enum CodingKeys: String, CodingKey {
+        case locationName = "location_name"
+        case tempCelcius = "temp_celsius"
+        case humidityPct = "humidity_pct"
+        case condition
     }
 }
 
