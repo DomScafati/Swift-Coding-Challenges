@@ -43,26 +43,39 @@ var pileE: [Int] = []              // []
 
 // MARK: Your solution (Challenge 1)
 
-
+func sortPages(_ pages: inout [Int]) {
+    var left = 0
+    var right = pages.count - 1
+    
+    while left < right {
+        if pages[left] == 0 {
+            left += 1
+        } else if pages[right] == 1 {
+            right -= 1
+        } else {
+            pages.swapAt(left, right)
+        }
+    }
+}
 
 // MARK: Tests (Challenge 1) — uncomment as you go
 
-// sortPages(&pileA)
-// assert(pileA == [0, 0, 0, 1, 1, 1])
-//
-// sortPages(&pileB)
-// assert(pileB == [0, 0, 1, 1])
-//
-// sortPages(&pileC)
-// assert(pileC == [0, 0, 1])
-//
-// sortPages(&pileD)
-// assert(pileD == [1, 1, 1])
-//
-// sortPages(&pileE)
-// assert(pileE == [])
-//
-// print("Challenge 1 passed!")
+ sortPages(&pileA)
+ assert(pileA == [0, 0, 0, 1, 1, 1])
+
+ sortPages(&pileB)
+ assert(pileB == [0, 0, 1, 1])
+
+ sortPages(&pileC)
+ assert(pileC == [0, 0, 1])
+
+ sortPages(&pileD)
+ assert(pileD == [1, 1, 1])
+
+ sortPages(&pileE)
+ assert(pileE == [])
+
+ print("Challenge 1 passed!")
 
 
 // ============================================================
@@ -93,17 +106,37 @@ let titheCoins = [2, 5, 8, 11, 14, 17, 20]
 
 // MARK: Your solution (Challenge 2)
 
+func countBalancedPairs(_ coins: [Int], tithe: Int) -> Int {
+    var result = 0
+    var left = 0
+    var right = coins.count - 1
+    
+    while left < right {
+        var guess = coins[left] + coins[right]
+        if guess == tithe {
+            result += 1
+            left += 1
+            right -= 1
+        } else if guess < tithe {
+            left += 1
+        } else {
+            right -= 1
+        }
+    }
+    
+    return result
+}
 
 
 // MARK: Tests (Challenge 2) — uncomment as you go
 
-// assert(countBalancedPairs(titheCoins, tithe: 25) == 3)    // 5 + 20, 8 + 17, 11 + 14
-// assert(countBalancedPairs(titheCoins, tithe: 22) == 3)    // 11 + 11 does not count, a coin can't pair with itself
-// assert(countBalancedPairs(titheCoins, tithe: 16) == 2)    // 2 + 14, 5 + 11
-// assert(countBalancedPairs(titheCoins, tithe: 100) == 0)   // nothing is large enough
-// assert(countBalancedPairs([5], tithe: 10) == 0)           // a single coin has no partner
-// assert(countBalancedPairs([], tithe: 10) == 0)
-// print("Challenge 2 passed!")
+ assert(countBalancedPairs(titheCoins, tithe: 25) == 3)    // 5 + 20, 8 + 17, 11 + 14
+ assert(countBalancedPairs(titheCoins, tithe: 22) == 3)    // 11 + 11 does not count, a coin can't pair with itself
+ assert(countBalancedPairs(titheCoins, tithe: 16) == 2)    // 2 + 14, 5 + 11
+ assert(countBalancedPairs(titheCoins, tithe: 100) == 0)   // nothing is large enough
+ assert(countBalancedPairs([5], tithe: 10) == 0)           // a single coin has no partner
+ assert(countBalancedPairs([], tithe: 10) == 0)
+ print("Challenge 2 passed!")
 
 
 // ============================================================
@@ -133,14 +166,40 @@ let southLedger = [98, 215, 400, 451, 900, 1200]
 
 // MARK: Your solution (Challenge 3)
 
+func mergeLedgers(_ north: [Int], _ south: [Int]) -> [Int] {
+    var result = [Int]()
+    var northPointer = 0
+    var southPointer = 0
 
+    while northPointer < north.count && southPointer < south.count {
+        if north[northPointer] < south[southPointer] {
+            result.append(north[northPointer])
+            northPointer += 1
+        } else {
+            result.append(south[southPointer])
+            southPointer += 1
+        }
+    }
+
+    while northPointer < north.count {
+        result.append(north[northPointer])
+        northPointer += 1
+    }
+
+    while southPointer < south.count {
+        result.append(south[southPointer])
+        southPointer += 1
+    }
+
+    return result
+}
 
 // MARK: Tests (Challenge 3) — uncomment as you go
 
-// assert(mergeLedgers(northLedger, southLedger) == [98, 102, 215, 215, 318, 400, 450, 451, 777, 900, 1200])
-// assert(mergeLedgers([1, 2, 3], [4, 5, 6]) == [1, 2, 3, 4, 5, 6])   // north entirely first
-// assert(mergeLedgers([4, 5, 6], [1, 2, 3]) == [1, 2, 3, 4, 5, 6])   // south entirely first
-// assert(mergeLedgers([], southLedger) == southLedger)               // north book is empty
-// assert(mergeLedgers(northLedger, []) == northLedger)               // south book is empty
-// assert(mergeLedgers([], []) == [])
-// print("Challenge 3 passed!")
+ assert(mergeLedgers(northLedger, southLedger) == [98, 102, 215, 215, 318, 400, 450, 451, 777, 900, 1200])
+ assert(mergeLedgers([1, 2, 3], [4, 5, 6]) == [1, 2, 3, 4, 5, 6])   // north entirely first
+ assert(mergeLedgers([4, 5, 6], [1, 2, 3]) == [1, 2, 3, 4, 5, 6])   // south entirely first
+ assert(mergeLedgers([], southLedger) == southLedger)               // north book is empty
+ assert(mergeLedgers(northLedger, []) == northLedger)               // south book is empty
+ assert(mergeLedgers([], []) == [])
+ print("Challenge 3 passed!")

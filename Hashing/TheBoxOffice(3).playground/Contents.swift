@@ -171,7 +171,6 @@ func splitBill(_ prices: [Int], target: Int) -> Bool {
     return false
 }
 
-// This version of splitBill is not my own solution
 func splitBillAlternate(_ prices: [Int], target: Int) -> Bool {
     var seen = Set<Int>()
     for price in prices {

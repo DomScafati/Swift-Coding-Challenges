@@ -45,37 +45,29 @@ let tableWeights = [4, 7, 2, 9, 5, 8, 3]
 // MARK: Solution (Challenge 1) — read and understand, do not modify
 
 func maxSpread(_ tables: [Int], k: Int) -> Int {
-
-    // --- Step 1: Build the first window by hand ---
-    // We can't slide yet — we need a starting sum to work from.
-    // So we manually add up the first k elements.
+    // fixed window
     var windowSum = 0
+    
     for i in 0..<k {
         windowSum += tables[i]
     }
-
-    // The first window is also our best result so far.
-    var maxSum = windowSum
-
-    // --- Step 2: Slide the window one step at a time ---
-    // Instead of re-summing k elements from scratch each iteration,
-    // we make exactly two cheap adjustments:
-    //   • Add the new element entering from the right
-    //   • Remove the old element falling off the left
-    //
-    // This keeps the sum current in O(1) per step — no inner loop needed.
-    // 'i' is the index of the new element on the right.
-    // The element leaving on the left is always at index (i - k).
-    for i in k..<tables.count {
-        windowSum += tables[i]      // new element slides in from the right
-        windowSum -= tables[i - k] // old element drops off the left
-
-        if windowSum > maxSum {
-            maxSum = windowSum
+    
+    var highest = windowSum
+    
+    for right in k..<tables.count {
+        let left = right - k
+        // expand
+        windowSum += tables[right]
+        // shrink
+        windowSum -= tables[left]
+        
+        // conditional
+        if windowSum > highest {
+            highest = windowSum
         }
     }
-
-    return maxSum
+    
+    return highest
 }
 
 // MARK: Tests (Challenge 1)
