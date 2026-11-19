@@ -364,25 +364,42 @@ actor TodoService {
 
 // MARK: Your solution (Challenge 4)
 
+extension TodoService {
+    func todos(ids: [Int]) async throws -> [Todo] {
+        var array = [Todo]()
+        
+        try await withThrowingTaskGroup(of: Todo.self) { group in
+            for id in ids {
+                group.addTask {
+                    return try await self.todo(id: id)
+                }
+            }
+            for try await result in group {
+                array.append(result)
+            }
+        }
+        return array.sorted { $0.id < $1.id }
+    }
+}
 
 // MARK: Tests (Challenge 4) — uncomment as you go
-// Task {
-//     do {
-//         let service = TodoService()
-//         let list = try await service.todos(ids: [3, 1, 2])
-//         assert(list.map(\.id) == [1, 2, 3])                   // sorted, not in finish order
-//         var calls = await service.networkCalls
-//         assert(calls == 3)
-//         let again = try await service.todos(ids: [2, 1])
-//         assert(again.map(\.id) == [1, 2])
-//         calls = await service.networkCalls
-//         assert(calls == 3)                                    // all came from the cache
-//         let none = try await service.todos(ids: [])
-//         assert(none.isEmpty)                                  // empty input, empty output
-//         let error = await thrown { _ = try await service.todos(ids: [4, 99999]) }
-//         assert(error as? TodoError == .notFound)              // one failure fails the call
-//         print("Challenge 4 passed!")
-//     } catch {
-//         print("Challenge 4 failed: \(error)")
-//     }
-// }
+ Task {
+     do {
+         let service = TodoService()
+         let list = try await service.todos(ids: [3, 1, 2])
+         assert(list.map(\.id) == [1, 2, 3])                   // sorted, not in finish order
+         var calls = await service.networkCalls
+         assert(calls == 3)
+         let again = try await service.todos(ids: [2, 1])
+         assert(again.map(\.id) == [1, 2])
+         calls = await service.networkCalls
+         assert(calls == 3)                                    // all came from the cache
+         let none = try await service.todos(ids: [])
+         assert(none.isEmpty)                                  // empty input, empty output
+         let error = await thrown { _ = try await service.todos(ids: [4, 99999]) }
+         assert(error as? TodoError == .notFound)              // one failure fails the call
+         print("Challenge 4 passed!")
+     } catch {
+         print("Challenge 4 failed: \(error)")
+     }
+ }

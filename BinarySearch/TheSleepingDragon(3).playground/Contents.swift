@@ -94,21 +94,20 @@ func hasTreasure(worth value: Int, in hoard: [Int]) -> Bool {
 // MARK: Your solution (Challenge 2)
 
 func priciestWithin(limit: Int, in hoard: [Int]) -> Int {
+    var best = -1
     var left = 0
     var right = hoard.count - 1
-    var best = -1
-    
     while left <= right {
         var middle = (left + right)/2
+        var guess = hoard[middle]
         
-        if hoard[middle] <= limit {
+        if guess <= limit {
             best = middle
             left = middle + 1
         } else {
             right = middle - 1
         }
     }
-    
     return best
 }
 
